@@ -108,8 +108,8 @@ def predict_iris(sepal_length: float, sepal_width: float, petal_length: float, p
 # Expose function to microcontroller via Bridge
 Bridge.provide("predict_iris", predict_iris)
 
-# Initialize WebUI
-ui = WebUI()
+# Initialize WebUI on port 7000
+ui = WebUI(port=7000)
 
 
 def on_predict(client, data):
