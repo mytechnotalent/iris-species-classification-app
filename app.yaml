@@ -5,7 +5,7 @@
 name: Iris NN
 
 # A brief description of what the application does.
-description: ""
+description: "The Iris Species Classification App (I-MLP) uses a trained PyTorch model to classify iris flowers and display the predicted species on the Arduino UNO Q LED matrix using distinct flower patterns for Setosa, Versicolor, or Virginica."
 
 # The icon for the application, can be an emoji or a short string.
 icon: 😀
