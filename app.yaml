@@ -2,7 +2,7 @@
 # This file describes the application's metadata and properties.
 
 # The user-visible name of the application.
-name: Iris NN
+name: Iris Species Classification App
 
 # A brief description of what the application does.
 description: "The Iris Species Classification App uses a trained PyTorch model to classify iris flowers and display the predicted species on the Arduino UNO Q LED matrix using distinct flower patterns for Setosa, Versicolor, or Virginica."
