@@ -1,6 +1,6 @@
 # Iris Species Classification App
 
-The Iris Species Classification App (I-MLP) uses a trained PyTorch model to classify iris flowers and display the predicted species on the Arduino UNO Q LED matrix using distinct flower patterns for Setosa, Versicolor, or Virginica.
+The Iris Species Classification App uses a trained PyTorch model to classify iris flowers and display the predicted species on the Arduino UNO Q LED matrix using distinct flower patterns for Setosa, Versicolor, or Virginica.
 
 ## Description
 
