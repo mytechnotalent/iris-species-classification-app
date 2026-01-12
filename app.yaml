@@ -15,4 +15,5 @@ icon: 🌸
 ports: [7000]
 
 # A list of bricks used by this application.
-bricks: []
+bricks: 
+  - arduino:web_ui
