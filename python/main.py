@@ -14,6 +14,7 @@ UPDATE DATE: January 11, 2026
 """
 
 from arduino.app_utils import *
+from arduino.app_bricks.web_ui import WebUI
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -106,6 +107,38 @@ def predict_iris(sepal_length: float, sepal_width: float, petal_length: float, p
 
 # Expose function to microcontroller via Bridge
 Bridge.provide("predict_iris", predict_iris)
+
+# Initialize WebUI
+ui = WebUI()
+
+
+def on_predict(client, data):
+  """
+  Handles prediction request from web interface.
+
+  PARAMETERS:
+    client: The client connection.
+    data (dict): Contains sepal_length, sepal_width, petal_length, petal_width.
+
+  RETURNS:
+    None
+  """
+  sepal_length = data.get("sepal_length", 0.0)
+  sepal_width = data.get("sepal_width", 0.0)
+  petal_length = data.get("petal_length", 0.0)
+  petal_width = data.get("petal_width", 0.0)
+
+  species = predict_iris(sepal_length, sepal_width, petal_length, petal_width)
+
+  # Send result back to web client
+  ui.send_message("prediction_result", {"species": species})
+
+  # Also update the LED matrix via Bridge
+  Bridge.call("display_species", species)
+
+
+# Handle socket messages
+ui.on_message("predict", on_predict)
 
 # Run app
 App.run()

@@ -1,0 +1,57 @@
+<!--
+SPDX-FileCopyrightText: Copyright (C) Kevin Thomas
+
+SPDX-License-Identifier: MPL-2.0
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris Species Classifier</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div>
+        <div class="header">
+            <h1 class="arduino-text">Iris Species Classification App</h1>
+        </div>
+
+        <div class="container">
+            <form id="iris-form">
+                <div class="form-group">
+                    <label for="sepal-length">Sepal Length (cm):</label>
+                    <input type="text" id="sepal-length" placeholder="e.g., 5.1" required>
+                    <div class="error-msg" id="sl-error">Please enter a valid float (e.g., 5.1)</div>
+                </div>
+                <div class="form-group">
+                    <label for="sepal-width">Sepal Width (cm):</label>
+                    <input type="text" id="sepal-width" placeholder="e.g., 3.5" required>
+                    <div class="error-msg" id="sw-error">Please enter a valid float (e.g., 3.5)</div>
+                </div>
+                <div class="form-group">
+                    <label for="petal-length">Petal Length (cm):</label>
+                    <input type="text" id="petal-length" placeholder="e.g., 1.4" required>
+                    <div class="error-msg" id="pl-error">Please enter a valid float (e.g., 1.4)</div>
+                </div>
+                <div class="form-group">
+                    <label for="petal-width">Petal Width (cm):</label>
+                    <input type="text" id="petal-width" placeholder="e.g., 0.2" required>
+                    <div class="error-msg" id="pw-error">Please enter a valid float (e.g., 0.2)</div>
+                </div>
+                <button type="submit" id="predict-btn">Predict Species</button>
+            </form>
+
+            <div id="result" class="result" style="display:none;">
+                <span id="result-text"></span>
+            </div>
+
+            <div id="error-container" class="error-message" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="libs/socket.io.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

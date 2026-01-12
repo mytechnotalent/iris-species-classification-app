@@ -5,7 +5,7 @@
 name: Iris Species Classification App
 
 # A brief description of what the application does.
-description: "The Iris Species Classification App uses a trained PyTorch model to classify iris flowers and display the predicted species on the Arduino UNO Q LED matrix using distinct flower patterns for Setosa, Versicolor, or Virginica."
+description: "The Iris Species Classification App uses a trained PyTorch model to classify iris flowers and display the predicted species on the Arduino UNO Q LED matrix using distinct flower patterns for Setosa, Versicolor, or Virginica. A web-based interface allows users to input iris measurements for real-time classification."
 
 # The icon for the application, can be an emoji or a short string.
 icon: 🌸

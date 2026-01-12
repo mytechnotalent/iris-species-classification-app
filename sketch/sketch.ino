@@ -24,23 +24,26 @@ void setup() {
   matrix.begin();
   matrix.clear();
   Bridge.begin();
+  Bridge.provide("display_species", display_species);
 }
 
 void loop() {
   /**
-   * Fetches iris prediction from Bridge and displays corresponding frame.
-   * Refresh rate: 1 second.
+   * Waits for display_species calls from Python backend.
+   * LED matrix is updated when prediction is received from web UI.
    */
-  String species;
-  // bool ok = Bridge.call("predict_iris", 5.1, 3.5, 1.4, 0.2).result(species); // Setosa
-  // bool ok = Bridge.call("predict_iris", 5.9, 2.8, 4.3, 1.3).result(species); // Versicolor
-  bool ok = Bridge.call("predict_iris", 6.6, 3.0, 5.5, 2.0).result(species); // Virginica
-  
-  if (ok) {
-    if (species == "setosa") loadFrame8x13(setosa);
-    else if (species == "versicolor") loadFrame8x13(versicolor);
-    else if (species == "virginica") loadFrame8x13(virginica);
-    else loadFrame8x13(unknown);
-  }
-  delay(1000);
+  delay(100);
+}
+
+void display_species(String species) {
+  /**
+   * Displays the predicted iris species on the LED matrix.
+   *
+   * PARAMETERS:
+   *   species (String): The predicted species name.
+   */
+  if (species == "setosa") loadFrame8x13(setosa);
+  else if (species == "versicolor") loadFrame8x13(versicolor);
+  else if (species == "virginica") loadFrame8x13(virginica);
+  else loadFrame8x13(unknown);
 }
