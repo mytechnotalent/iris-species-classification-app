@@ -127,12 +127,9 @@ def on_predict(client, data):
   sepal_width = data.get("sepal_width", 0.0)
   petal_length = data.get("petal_length", 0.0)
   petal_width = data.get("petal_width", 0.0)
-
   species = predict_iris(sepal_length, sepal_width, petal_length, petal_width)
-
   # Send result back to web client
   ui.send_message("prediction_result", {"species": species})
-
   # Also update the LED matrix via Bridge
   Bridge.call("display_species", species)
 
