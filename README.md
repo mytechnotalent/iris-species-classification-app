@@ -4,7 +4,7 @@ Classify iris flowers in real time with a PyTorch model and see predictions on a
 
 ## Description
 
-The App uses a Multi-Layer Perceptron (MLP) neural network trained on the classic Iris dataset to predict iris species from four input measurements: sepal length, sepal width, petal length, and petal width. Users can enter measurements through a web interface, and the prediction is visualized on the 8 x 13 LED matrix with unique flower patterns for each species.
+The App uses a Multi-Layer Perceptron (MLP) neural network trained on the classic Iris dataset to predict iris species from three optimized input features: sepal dominance, petal width, and petal length. These features were selected using SHAP (SHapley Additive exPlanations) feature importance analysis to reduce the model from 4 to 3 inputs while maintaining high accuracy. Users can enter measurements through a web interface, and the prediction is visualized on the 8 x 13 LED matrix with unique flower patterns for each species.
 
 The `assets` folder contains the **frontend** components of the application, including the HTML, CSS, and JavaScript files that make up the web user interface. The `python` folder contains the application **backend** with model inference and WebUI handling. The Arduino sketch manages LED matrix display.
 
@@ -38,7 +38,10 @@ The Iris Species Classification App uses the following Bricks:
 
 1. Click the **Run** button in App Lab to start the application.
 2. Open the App in your browser at `<UNO-Q-IP-ADDRESS>:7000`
-3. Enter the four iris measurements (must be floats with decimal points, e.g., `5.1`, not `5`)
+3. Enter the three iris features:
+   - **Sepal Dominance**: `1.0` if sepal_length > 2×petal_length, else `0.0`
+   - **Petal Width**: measurement in cm (e.g., `0.2`)
+   - **Petal Length**: measurement in cm (e.g., `1.4`)
 4. Click **Predict Species** to see the result
 
 ### Input Validation
@@ -46,17 +49,20 @@ The Iris Species Classification App uses the following Bricks:
 The web interface validates that all inputs are proper floats:
 - Integers are rejected (e.g., `5` must be entered as `5.0`)
 - Text/strings are rejected
-- Valid format examples: `5.1`, `3.5`, `1.4`, `0.2`
+- Sepal Dominance must be `0.0` or `1.0`
+- Valid format examples: `1.0`, `0.2`, `1.4`
 
 ### Example Measurements
 
 Try these sample measurements to test each species prediction:
 
-| Species | Sepal Length | Sepal Width | Petal Length | Petal Width |
-|---------|--------------|-------------|--------------|-------------|
-| Setosa | 5.1 | 3.5 | 1.4 | 0.2 |
-| Versicolor | 5.9 | 2.8 | 4.3 | 1.3 |
-| Virginica | 6.6 | 3.0 | 5.5 | 2.0 |
+| Species    | Sepal Dominance | Petal Width | Petal Length |
+| ---------- | --------------- | ----------- | ------------ |
+| Setosa     | 1.0             | 0.2         | 1.4          |
+| Versicolor | 0.0             | 1.3         | 4.3          |
+| Virginica  | 0.0             | 2.0         | 5.5          |
+
+**Note:** Sepal Dominance = `1.0` means the flower's sepal length is more than twice its petal length (characteristic of setosa).
 
 ## How it Works
 
@@ -73,30 +79,34 @@ Once the application is running, the device performs the following operations:
   ui.on_message("predict", on_predict)
   ```
 
-- **Loading the trained PyTorch model.**
+- **Loading the trained PyTorch model and scaler.**
 
-  The application loads a pre-trained MLP model for iris classification:
+  The application loads a pre-trained MLP model and StandardScaler for iris classification:
 
   ```python
   from arduino.app_utils import *
   import torch
   import torch.nn as nn
+  import joblib
 
   model = Model().to(DEVICE)
-  model.load_state_dict(torch.load("/app/python/iris_model.pth", map_location=DEVICE))
+  model.load_state_dict(torch.load("/app/python/iris_model.pth", map_location=DEVICE, weights_only=True))
   model.eval()
+
+  scaler = joblib.load("/app/python/iris_scaler.pkl")
   ```
 
-  The model is automatically loaded when the application starts and is ready to make predictions.
+  The model and scaler are automatically loaded when the application starts and are ready to make predictions.
 
 - **Making predictions based on input measurements.**
 
-  The `predict_iris()` function takes four measurements and returns the predicted species:
+  The `predict_iris()` function takes three features, scales them, and returns the predicted species:
 
   ```python
-  def predict_iris(sepal_length: float, sepal_width: float, petal_length: float, petal_width: float) -> str:
-      features = [sepal_length, sepal_width, petal_length, petal_width]
-      X_new = torch.tensor(features).float().to(DEVICE)
+  def predict_iris(sepal_dominance: float, petal_width: float, petal_length: float) -> str:
+      raw_features = [sepal_dominance, petal_width, petal_length]
+      scaled_features = scaler.transform([raw_features])[0]
+      X_new = torch.tensor(scaled_features).float().to(DEVICE)
       logits = model(X_new)
       predicted_class = logits.argmax(dim=1).item()
       return SPECIES_MAP[predicted_class]
@@ -110,8 +120,8 @@ Once the application is running, the device performs the following operations:
 
   ```python
   def on_predict(client, data):
-      species = predict_iris(data["sepal_length"], data["sepal_width"], 
-                             data["petal_length"], data["petal_width"])
+      species = predict_iris(data["sepal_dominance"], data["petal_width"], 
+                             data["petal_length"])
       ui.send_message("prediction_result", {"species": species})
       Bridge.call("display_species", species)
   ```
@@ -148,7 +158,7 @@ Web Browser Input → WebSocket → Python Backend → PyTorch Model → Router 
 
 - **`Model`**: A feedforward neural network class with two hidden layers (8 neurons each) and optional dropout for regularization.
 
-- **`predict_iris()`**: Takes four float measurements (sepal length, sepal width, petal length, petal width), runs inference through the model, and returns the predicted species name.
+- **`predict_iris()`**: Takes three float features (sepal dominance, petal width, petal length), scales them using the fitted StandardScaler, runs inference through the model, and returns the predicted species name.
 
 - **`Bridge.call("display_species", species)`**: Calls the Arduino function to update the LED matrix display.
 
@@ -194,24 +204,26 @@ The Arduino code is focused on hardware management. It requests predictions and 
 The Jupyter notebook contains the complete model training pipeline:
 
 - **Data Loading**: Loads the Iris dataset from `iris.csv`
-- **Data Preprocessing**: Splits data into training and testing sets
-- **Model Definition**: Defines the MLP architecture
-- **Training Loop**: Trains the model using cross-entropy loss and Adam optimizer
+- **Feature Engineering**: Creates `sepal_dominance` feature (1.0 if sepal_length > 2×petal_length)
+- **SHAP Analysis**: Uses SHAP feature importance to select the 3 most important features
+- **Data Preprocessing**: Splits data, fits StandardScaler, saves scaler to `iris_scaler.pkl`
+- **Model Definition**: Defines the MLP architecture with 3 input features
+- **Training Loop**: Trains the model using cross-entropy loss and AdamW optimizer
 - **Model Export**: Saves the trained weights to `iris_model.pth`
 
 ## Neural Network Architecture
 
 The MLP model consists of:
 
-- **fc1**: Input (4) → Output (8), ReLU activation
+- **fc1**: Input (3) → Output (8), ReLU activation
 - **fc2**: Input (8) → Output (8), ReLU activation  
 - **out**: Input (8) → Output (3), Softmax activation
 
-The model takes 4 input features (sepal/petal measurements) and outputs probabilities for 3 iris species.
+The model takes 3 input features (sepal dominance, petal width, petal length) and outputs probabilities for 3 iris species. Features are scaled using StandardScaler before inference.
 
 ## Author
 
 **Kevin Thomas**
 
 - Creation Date: January 11, 2026
-- Last Updated: January 11, 2026
+- Last Updated: February 1, 2026

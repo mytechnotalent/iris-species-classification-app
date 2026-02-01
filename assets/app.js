@@ -51,10 +51,9 @@ function handleSubmit(e) {
     e.preventDefault();
 
     const fields = [
-        { id: 'sepal-length', errorId: 'sl-error' },
-        { id: 'sepal-width', errorId: 'sw-error' },
-        { id: 'petal-length', errorId: 'pl-error' },
-        { id: 'petal-width', errorId: 'pw-error' }
+        { id: 'sepal-dominance', errorId: 'sd-error' },
+        { id: 'petal-width', errorId: 'pw-error' },
+        { id: 'petal-length', errorId: 'pl-error' }
     ];
 
     let valid = true;
@@ -75,10 +74,9 @@ function handleSubmit(e) {
 
     if (valid) {
         const data = {
-            sepal_length: parseFloat(document.getElementById('sepal-length').value),
-            sepal_width: parseFloat(document.getElementById('sepal-width').value),
-            petal_length: parseFloat(document.getElementById('petal-length').value),
-            petal_width: parseFloat(document.getElementById('petal-width').value)
+            sepal_dominance: parseFloat(document.getElementById('sepal-dominance').value),
+            petal_width: parseFloat(document.getElementById('petal-width').value),
+            petal_length: parseFloat(document.getElementById('petal-length').value)
         };
 
         socket.emit('predict', data);
