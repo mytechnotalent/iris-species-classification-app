@@ -10,40 +10,69 @@
  *
  * AUTHOR: Kevin Thomas
  * CREATION DATE: January 11, 2026
- * UPDATE DATE: January 11, 2026
+ * UPDATE DATE: February 24, 2026
  */
 
 #include <Arduino_RouterBridge.h>
 #include "iris_frames.h"
 #include "led_matrix.h"
 
-void setup() {
-  /**
-   * Initializes LED matrix and Bridge.
-   */
+/**
+ * Private helper function to load iris frame by species name.
+ *
+ * PARAMETERS:
+ *   species (String): The predicted species name.
+ *
+ * RETURN:
+ *   void
+ */
+void _load_species_frame(String species)
+{
+  if (species == "setosa")
+    loadFrame8x13(setosa);
+  else if (species == "versicolor")
+    loadFrame8x13(versicolor);
+  else if (species == "virginica")
+    loadFrame8x13(virginica);
+  else
+    loadFrame8x13(unknown);
+}
+
+/**
+ * Initialize LED matrix and Bridge communication.
+ *
+ * RETURN:
+ *   void
+ */
+void setup()
+{
   matrix.begin();
   matrix.clear();
   Bridge.begin();
   Bridge.provide("display_species", display_species);
 }
 
-void loop() {
-  /**
-   * Waits for display_species calls from Python backend.
-   * LED matrix is updated when prediction is received from web UI.
-   */
+/**
+ * Main loop waiting for prediction updates from Python backend.
+ *
+ * RETURN:
+ *   void
+ */
+void loop()
+{
   delay(100);
 }
 
-void display_species(String species) {
-  /**
-   * Displays the predicted iris species on the LED matrix.
-   *
-   * PARAMETERS:
-   *   species (String): The predicted species name.
-   */
-  if (species == "setosa") loadFrame8x13(setosa);
-  else if (species == "versicolor") loadFrame8x13(versicolor);
-  else if (species == "virginica") loadFrame8x13(virginica);
-  else loadFrame8x13(unknown);
+/**
+ * Display predicted iris species on LED matrix.
+ *
+ * PARAMETERS:
+ *   species (String): The predicted iris species name.
+ *
+ * RETURN:
+ *   void
+ */
+void display_species(String species)
+{
+  _load_species_frame(species);
 }

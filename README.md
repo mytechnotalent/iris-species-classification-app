@@ -1,5 +1,9 @@
 # Iris Species Classification App
 
+**AUTHOR:** Kevin Thomas  
+**CREATION DATE:** January 11, 2026  
+**UPDATE DATE:** February 24, 2026  
+
 Classify iris flowers in real time with a PyTorch model and see predictions on an Arduino LED matrix by entering measurements via the web interface.
 
 ## Description
@@ -142,9 +146,8 @@ Once the application is running, the device performs the following operations:
 The high-level data flow looks like this:
 
 ```
-Web Browser Input → WebSocket → Python Backend → PyTorch Model → Router Bridge → LED Matrix
+Web Browser Input → WebSocket → Python Backend → PyTorch Model → Bridge → LED Matrix
 ```
-, predictions, and web interface communication.
 
 - **`ui = WebUI()`**: Initializes the web server that serves the HTML interface and handles WebSocket communication.
 
@@ -184,12 +187,7 @@ The Arduino code is focused on hardware management. It receives species names an
 
 - **`Bridge.provide("display_species", display_species)`**: Registers the display function to be callable from Python.
 
-- **`display_species(String species)`**: Receives the predicted species and displays the corresponding 8 × 13 frame on the LED matrix
-The Arduino code is focused on hardware management. It requests predictions and displays them.
-
-- **`matrix.begin()`**: Initializes the matrix driver, making the LED display ready to show patterns.
-
-- **`Bridge.begin()`**: Opens the serial communication bridge to the host Python® runtime.
+- **`display_species(String species)`**: Receives the predicted species and displays the corresponding 8 × 13 frame on the LED matrix.
 
 - **`loop()`**: Once per second, calls the Python® function with iris measurements, selects the corresponding 8 × 13 frame (`setosa`, `versicolor`, `virginica`, or `unknown`), and shows it with `loadFrame8x13(frame)`.
 
@@ -199,25 +197,13 @@ The Arduino code is focused on hardware management. It requests predictions and 
   - **Virginica**: Large starburst flower pattern
   - **Unknown**: Question mark for error cases
 
-### 🔧 Model Training (`I-MLP.ipynb`)
-
-The Jupyter notebook contains the complete model training pipeline:
-
-- **Data Loading**: Loads the Iris dataset from `iris.csv`
-- **Feature Engineering**: Creates `sepal_dominance` feature (1.0 if sepal_length > 2×petal_length)
-- **SHAP Analysis**: Uses SHAP feature importance to select the 3 most important features
-- **Data Preprocessing**: Splits data, fits StandardScaler, saves scaler to `iris_scaler.pkl`
-- **Model Definition**: Defines the MLP architecture with 3 input features
-- **Training Loop**: Trains the model using cross-entropy loss and AdamW optimizer
-- **Model Export**: Saves the trained weights to `iris_model.pth`
-
 ## Neural Network Architecture
 
 The MLP model consists of:
 
 - **fc1**: Input (3) → Output (8), ReLU activation
 - **fc2**: Input (8) → Output (8), ReLU activation  
-- **out**: Input (8) → Output (3), Softmax activation
+- **out**: Input (8) → Output (3), logits output
 
 The model takes 3 input features (sepal dominance, petal width, petal length) and outputs probabilities for 3 iris species. Features are scaled using StandardScaler before inference.
 
@@ -226,4 +212,4 @@ The model takes 3 input features (sepal dominance, petal width, petal length) an
 **Kevin Thomas**
 
 - Creation Date: January 11, 2026
-- Last Updated: February 1, 2026
+- Last Updated: February 24, 2026

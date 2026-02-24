@@ -2,7 +2,7 @@
  * FILE: led_matrix.h
  *
  * DESCRIPTION:
- *   LED matrix interface for 8x13 air quality display.
+ *   LED matrix interface for 8x13 iris species display.
  *   Provides functions to convert frame arrays and load them onto the matrix.
  *
  * BRIEF:
@@ -10,7 +10,7 @@
  *
  * AUTHOR: Kevin Thomas
  * CREATION DATE: December 22, 2025
- * UPDATE DATE: December 22, 2025
+ * UPDATE DATE: February 24, 2026
  *
  * NOTES:
  *   Requires Arduino_LED_Matrix library.
