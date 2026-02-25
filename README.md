@@ -30,8 +30,6 @@ The Iris Species Classification App uses the following Bricks:
 - Arduino App Lab
 - PyTorch (for neural network inference)
 
-**Note:** You can also run this example using your Arduino UNO Q as a Single Board Computer (SBC) using a [USB-C® hub](https://store.arduino.cc/products/usb-c-to-hdmi-multiport-adapter-with-ethernet-and-usb-hub) with a mouse, keyboard and display attached.
-
 ## How to Use the Example
 
 ### Clone the Example
@@ -94,7 +92,7 @@ Once the application is running, the device performs the following operations:
   import joblib
 
   model = Model().to(DEVICE)
-  model.load_state_dict(torch.load("/app/python/iris_model.pth", map_location=DEVICE, weights_only=True))
+  model.load_state_dict(torch.load("/app/python/iris_model_lean.pth", map_location=DEVICE, weights_only=True))
   model.eval()
 
   scaler = joblib.load("/app/python/iris_scaler.pkl")

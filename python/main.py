@@ -88,7 +88,7 @@ class Model(nn.Module):
 # Initialize model, load trained weights, and set to evaluation mode
 model = Model().to(DEVICE)
 model.load_state_dict(
-    torch.load("/app/python/iris_model.pth", map_location=DEVICE, weights_only=True)
+    torch.load("/app/python/iris_model_lean.pth", map_location=DEVICE, weights_only=True)
 )
 model.eval()
 # Load fitted scaler used during model training for feature normalization
