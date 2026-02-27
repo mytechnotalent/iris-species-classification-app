@@ -34,6 +34,7 @@ $ADB push python "$TARGET_PATH/" > /dev/null
 $ADB push assets "$TARGET_PATH/" > /dev/null
 $ADB push sketch "$TARGET_PATH/" > /dev/null
 $ADB push app.yaml "$TARGET_PATH/" > /dev/null
+$ADB push LICENSE "$TARGET_PATH/" > /dev/null
 $ADB push README.md "$TARGET_PATH/" > /dev/null
 echo "✓ All files deployed"
 
