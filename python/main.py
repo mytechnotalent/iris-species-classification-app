@@ -10,7 +10,7 @@ BRIEF:
 
 AUTHOR: Kevin Thomas
 CREATION DATE: January 11, 2026
-UPDATE DATE: February 24, 2026
+UPDATE DATE: February 26, 2026
 """
 
 from arduino.app_utils import *
@@ -38,7 +38,7 @@ class Model(nn.Module):
     Feedforward neural network for iris species classification.
 
     A two-layer feedforward network with optional dropout for regularization.
-    Accepts 3 engineered features and outputs 3 class logits.
+    Accepts 6 input features and outputs 3 class logits.
 
     ATTRIBUTES:
       fc1 (nn.Linear): First hidden layer (input -> h1).
@@ -47,12 +47,12 @@ class Model(nn.Module):
       dropout (nn.Dropout): Dropout layer for regularization.
     """
 
-    def __init__(self, in_features=3, h1=8, h2=8, out_features=3, dropout=0.0):
+    def __init__(self, in_features=6, h1=8, h2=8, out_features=3, dropout=0.0):
         """
         Initialize neural network layers.
 
         PARAMETERS:
-          in_features (int): Number of input features (default: 3).
+          in_features (int): Number of input features (default: 6).
           h1 (int): Number of neurons in first hidden layer (default: 8).
           h2 (int): Number of neurons in second hidden layer (default: 8).
           out_features (int): Number of output classes (default: 3).
@@ -88,7 +88,7 @@ class Model(nn.Module):
 # Initialize model, load trained weights, and set to evaluation mode
 model = Model().to(DEVICE)
 model.load_state_dict(
-    torch.load("/app/python/iris_model_lean.pth", map_location=DEVICE, weights_only=True)
+    torch.load("/app/python/iris_model.pth", map_location=DEVICE, weights_only=True)
 )
 model.eval()
 # Load fitted scaler used during model training for feature normalization
@@ -97,20 +97,36 @@ scaler = joblib.load("/app/python/iris_scaler.pkl")
 
 # Private helper functions for predict_iris (in call order)
 def _prepare_raw_features(
-    sepal_dominance: float, petal_width: float, petal_length: float
+    sepal_length: float,
+    sepal_width: float,
+    petal_length: float,
+    petal_width: float,
+    petal_shape: float,
+    sepal_dominance: float,
 ) -> list:
     """
-    Prepare raw features in lean_features order.
+    Prepare raw features in model input order.
 
     PARAMETERS:
-      sepal_dominance (float): Sepal dominance feature (0.0 or 1.0).
-      petal_width (float): Petal width measurement in cm.
+      sepal_length (float): Sepal length measurement in cm.
+      sepal_width (float): Sepal width measurement in cm.
       petal_length (float): Petal length measurement in cm.
+      petal_width (float): Petal width measurement in cm.
+      petal_shape (float): Petal length / petal width category.
+      sepal_dominance (float): Sepal dominance feature (0.0 or 1.0).
 
     RETURNS:
-      list: Features in order [sepal_dominance, petal_width, petal_length].
+      list: Features in order [sepal_length, sepal_width, petal_length,
+            petal_width, petal_shape, sepal_dominance].
     """
-    return [sepal_dominance, petal_width, petal_length]
+    return [
+        sepal_length,
+        sepal_width,
+        petal_length,
+        petal_width,
+        petal_shape,
+        sepal_dominance,
+    ]
 
 
 def _scale_and_tensorize(raw_features: list) -> torch.Tensor:
@@ -143,24 +159,39 @@ def _predict_class(X_tensor: torch.Tensor) -> int:
 
 
 def predict_iris(
-    sepal_dominance: float, petal_width: float, petal_length: float
+    sepal_length: float,
+    sepal_width: float,
+    petal_length: float,
+    petal_width: float,
+    petal_shape: float,
+    sepal_dominance: float,
 ) -> str:
     """
-    Predict iris species from engineered features.
+    Predict iris species from input features.
 
     Prepares features, scales them, and passes through the trained model to
     predict the iris species.
 
     PARAMETERS:
-      sepal_dominance (float): 1.0 if sepal_length > 2*petal_length, else 0.0.
-      petal_width (float): Petal width measurement in cm.
+      sepal_length (float): Sepal length measurement in cm.
+      sepal_width (float): Sepal width measurement in cm.
       petal_length (float): Petal length measurement in cm.
+      petal_width (float): Petal width measurement in cm.
+      petal_shape (float): Petal length / petal width category.
+      sepal_dominance (float): 1.0 if sepal_length > 2*petal_length, else 0.0.
 
     RETURNS:
       str: Predicted iris species name or error message.
     """
     try:
-        raw_features = _prepare_raw_features(sepal_dominance, petal_width, petal_length)
+        raw_features = _prepare_raw_features(
+            sepal_length,
+            sepal_width,
+            petal_length,
+            petal_width,
+            petal_shape,
+            sepal_dominance,
+        )
         X_tensor = _scale_and_tensorize(raw_features)
         predicted_class = _predict_class(X_tensor)
         return SPECIES_MAP[predicted_class]
@@ -185,12 +216,16 @@ def _extract_flower_measurements(data: dict) -> tuple:
       data (dict): Request data containing flower measurements.
 
     RETURNS:
-      tuple: (sepal_dominance, petal_width, petal_length) with 0.0 defaults.
+      tuple: (sepal_length, sepal_width, petal_length, petal_width,
+              petal_shape, sepal_dominance) with 0.0 defaults.
     """
     return (
-        data.get("sepal_dominance", 0.0),
-        data.get("petal_width", 0.0),
+        data.get("sepal_length", 0.0),
+        data.get("sepal_width", 0.0),
         data.get("petal_length", 0.0),
+        data.get("petal_width", 0.0),
+        data.get("petal_shape", 0.0),
+        data.get("sepal_dominance", 0.0),
     )
 
 
@@ -217,13 +252,28 @@ def on_predict(client, data):
 
     PARAMETERS:
       client: The client connection requesting prediction.
-      data (dict): Request data with sepal_dominance, petal_width, petal_length.
+      data (dict): Request data with sepal_length, sepal_width, petal_length,
+            petal_width, petal_shape, sepal_dominance.
 
     RETURNS:
       None
     """
-    sepal_dominance, petal_width, petal_length = _extract_flower_measurements(data)
-    species = predict_iris(sepal_dominance, petal_width, petal_length)
+    (
+        sepal_length,
+        sepal_width,
+        petal_length,
+        petal_width,
+        petal_shape,
+        sepal_dominance,
+    ) = _extract_flower_measurements(data)
+    species = predict_iris(
+        sepal_length,
+        sepal_width,
+        petal_length,
+        petal_width,
+        petal_shape,
+        sepal_dominance,
+    )
     _send_result_to_clients(species)
 
 

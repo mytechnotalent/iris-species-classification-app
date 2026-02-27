@@ -10,7 +10,7 @@ SPDX-License-Identifier: MPL-2.0
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iris Species Classification App</title>
+    <title>ISCA</title>
     <link rel="icon" type="image/png" href="img/favicon.png">
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
@@ -24,9 +24,19 @@ SPDX-License-Identifier: MPL-2.0
         <div class="container">
             <form id="iris-form">
                 <div class="form-group">
-                    <label for="sepal-dominance">Sepal Dominance (0.0 or 1.0):</label>
-                    <input type="text" id="sepal-dominance" placeholder="e.g., 1.0" required>
-                    <div class="error-msg" id="sd-error">Please enter 0.0 or 1.0</div>
+                    <label for="sepal-length">Sepal Length (cm):</label>
+                    <input type="text" id="sepal-length" placeholder="e.g., 5.1" required>
+                    <div class="error-msg" id="sl-error">Please enter a valid float (e.g., 5.1)</div>
+                </div>
+                <div class="form-group">
+                    <label for="sepal-width">Sepal Width (cm):</label>
+                    <input type="text" id="sepal-width" placeholder="e.g., 3.5" required>
+                    <div class="error-msg" id="sw-error">Please enter a valid float (e.g., 3.5)</div>
+                </div>
+                <div class="form-group">
+                    <label for="petal-length">Petal Length (cm):</label>
+                    <input type="text" id="petal-length" placeholder="e.g., 1.4" required>
+                    <div class="error-msg" id="pl-error">Please enter a valid float (e.g., 1.4)</div>
                 </div>
                 <div class="form-group">
                     <label for="petal-width">Petal Width (cm):</label>
@@ -34,9 +44,14 @@ SPDX-License-Identifier: MPL-2.0
                     <div class="error-msg" id="pw-error">Please enter a valid float (e.g., 0.2)</div>
                 </div>
                 <div class="form-group">
-                    <label for="petal-length">Petal Length (cm):</label>
-                    <input type="text" id="petal-length" placeholder="e.g., 1.4" required>
-                    <div class="error-msg" id="pl-error">Please enter a valid float (e.g., 1.4)</div>
+                    <label for="petal-shape">Petal Shape (petal_length / petal_width category):</label>
+                    <input type="text" id="petal-shape" placeholder="e.g., 1.0" required>
+                    <div class="error-msg" id="ps-error">Please enter a valid float (e.g., 1.0)</div>
+                </div>
+                <div class="form-group">
+                    <label for="sepal-dominance">Sepal Dominance (0.0 or 1.0):</label>
+                    <input type="text" id="sepal-dominance" placeholder="e.g., 1.0" required>
+                    <div class="error-msg" id="sd-error">Please enter 0.0 or 1.0</div>
                 </div>
                 <button type="submit" id="predict-btn">Predict Species</button>
             </form>

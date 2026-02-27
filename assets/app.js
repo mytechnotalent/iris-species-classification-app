@@ -11,7 +11,7 @@
  *
  * AUTHOR: Kevin Thomas
  * CREATION DATE: January 11, 2026
- * UPDATE DATE: February 24, 2026
+ * UPDATE DATE: February 26, 2026
  *
  * SPDX-FileCopyrightText: Copyright (C) Kevin Thomas
  * SPDX-License-Identifier: MPL-2.0
@@ -129,13 +129,17 @@ function _validate_form_fields(fields) {
  * Private helper to collect and parse form input values.
  *
  * RETURN:
- *   object: Object with sepal_dominance, petal_width, petal_length properties.
+ *   object: Object with sepal_length, sepal_width, petal_length, petal_width,
+ *           petal_shape, sepal_dominance properties.
  */
 function _collect_form_data() {
     return {
-        sepal_dominance: parseFloat(document.getElementById('sepal-dominance').value),
+        sepal_length: parseFloat(document.getElementById('sepal-length').value),
+        sepal_width: parseFloat(document.getElementById('sepal-width').value),
+        petal_length: parseFloat(document.getElementById('petal-length').value),
         petal_width: parseFloat(document.getElementById('petal-width').value),
-        petal_length: parseFloat(document.getElementById('petal-length').value)
+        petal_shape: parseFloat(document.getElementById('petal-shape').value),
+        sepal_dominance: parseFloat(document.getElementById('sepal-dominance').value)
     };
 }
 
@@ -148,9 +152,12 @@ function _collect_form_data() {
 function _on_form_submit(e) {
     e.preventDefault();
     const fields = [
-        { id: 'sepal-dominance', errorId: 'sd-error' },
+        { id: 'sepal-length', errorId: 'sl-error' },
+        { id: 'sepal-width', errorId: 'sw-error' },
+        { id: 'petal-length', errorId: 'pl-error' },
         { id: 'petal-width', errorId: 'pw-error' },
-        { id: 'petal-length', errorId: 'pl-error' }
+        { id: 'petal-shape', errorId: 'ps-error' },
+        { id: 'sepal-dominance', errorId: 'sd-error' }
     ];
     if (_validate_form_fields(fields)) {
         socket.emit('predict', _collect_form_data());
